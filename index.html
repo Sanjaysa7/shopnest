@@ -1,0 +1,707 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopNest | Online Shopping</title>
+
+  <!-- Supabase JavaScript library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6f7fb;
+      color: #222;
+      line-height: 1.6;
+    }
+
+    header {
+      background: #ffffff;
+      padding: 18px 6%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 12px #0000000c;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 27px;
+      font-weight: bold;
+      color: #5b4bdb;
+    }
+
+    .logo span {
+      color: #222;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    input, button {
+      font: inherit;
+    }
+
+    #searchInput {
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      width: min(280px, 75vw);
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .primary {
+      background: #5b4bdb;
+      color: white;
+    }
+
+    .primary:hover {
+      background: #4635c4;
+    }
+
+    .hero {
+      margin: 28px auto;
+      width: 88%;
+      padding: 55px 7%;
+      border-radius: 20px;
+      background: linear-gradient(120deg, #5b4bdb, #9386ff);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .hero h1 {
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.2;
+      margin-bottom: 15px;
+    }
+
+    .hero p {
+      max-width: 540px;
+      margin-bottom: 22px;
+      color: #f2f0ff;
+    }
+
+    .hero .hero-button {
+      background: white;
+      color: #5b4bdb;
+    }
+
+    .hero-art {
+      font-size: 100px;
+    }
+
+    main {
+      width: 88%;
+      margin: 35px auto 60px;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .section-heading h2 {
+      font-size: 26px;
+    }
+
+    #status {
+      margin-bottom: 18px;
+      color: #666;
+      overflow-wrap: anywhere;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 22px;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #eee;
+      box-shadow: 0 5px 18px #00000008;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .product-image {
+      min-height: 155px;
+      background: #eeebff;
+      display: grid;
+      place-items: center;
+      font-size: 65px;
+    }
+
+    .product-info {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .product-info h3 {
+      font-size: 18px;
+      margin-bottom: 7px;
+    }
+
+    .description {
+      color: #777;
+      font-size: 14px;
+      margin-bottom: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .price {
+      font-size: 22px;
+      font-weight: bold;
+      color: #5b4bdb;
+      margin-top: auto;
+    }
+
+    .stock {
+      font-size: 13px;
+      color: #168044;
+      margin: 5px 0 13px;
+    }
+
+    .out-of-stock {
+      color: #c0392b;
+    }
+
+    .add-button {
+      width: 100%;
+      background: #5b4bdb;
+      color: white;
+    }
+
+    .add-button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    .empty {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      color: #666;
+      grid-column: 1 / -1;
+      text-align: center;
+    }
+
+    .cart-section {
+      margin-top: 45px;
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 5px 18px #00000008;
+    }
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid #eee;
+      flex-wrap: wrap;
+    }
+
+    .cart-item button {
+      padding: 5px 10px;
+      background: #eeeaff;
+      color: #4635c4;
+    }
+
+    .cart-total {
+      text-align: right;
+      margin-top: 18px;
+      font-size: 21px;
+      font-weight: bold;
+    }
+
+    footer {
+      background: #211d3b;
+      color: white;
+      text-align: center;
+      padding: 25px;
+      margin-top: 50px;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 16px 5%;
+      }
+
+      .hero {
+        width: 92%;
+        padding: 35px 7%;
+      }
+
+      .hero-art {
+        font-size: 65px;
+      }
+
+      main {
+        width: 92%;
+      }
+
+      .product-grid {
+        grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+        gap: 12px;
+      }
+
+      .product-info {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">Shop<span>Nest</span></div>
+
+    <div class="header-right">
+      <input
+        id="searchInput"
+        type="search"
+        placeholder="Search products..."
+        aria-label="Search products"
+      >
+      <button class="primary" onclick="scrollToCart()">
+        🛒 Cart (<span id="cartCount">0</span>)
+      </button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h1>Find Your Next Favourite Thing.</h1>
+      <p>
+        Discover everyday essentials, electronics and more
+        at ShopNest. Your shopping journey starts here.
+      </p>
+      <button class="hero-button" onclick="scrollToProducts()">
+        Explore Products
+      </button>
+    </div>
+    <div class="hero-art" aria-hidden="true">🛍️</div>
+  </section>
+
+  <main>
+    <section id="productsSection">
+      <div class="section-heading">
+        <h2>Featured Products</h2>
+        <span id="productCount">0 products</span>
+      </div>
+
+      <p id="status" role="status">Connecting to ShopNest...</p>
+
+      <div id="productGrid" class="product-grid">
+        <div class="empty">Loading products...</div>
+      </div>
+    </section>
+
+    <section class="cart-section" id="cartSection">
+      <div class="section-heading">
+        <h2>🛒 Your Shopping Cart</h2>
+        <button onclick="clearCart()">Clear Cart</button>
+      </div>
+
+      <div id="cartItems">
+        <p>Your cart is empty. Add a product to get started!</p>
+      </div>
+
+      <div class="cart-total">
+        Total: ₹<span id="cartTotal">0.00</span>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>ShopNest</strong> — Shopping made simple.</p>
+    <p>© 2026 ShopNest. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // STEP 2: Enter your own Supabase project details here.
+    // Use your project's URL and its publishable/anon key.
+    // Never put a service_role or secret key in browser code.
+
+    const SUPABASE_URL = "https://zhiiwxigftjkvgfrxeji.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_K_PXRDY8IZve-2oZ7SOteg_vcGilsZH";
+
+    const productGrid = document.getElementById("productGrid");
+    const statusMessage = document.getElementById("status");
+
+    let products = [];
+    let cart = [];
+
+    // Connect the website to Supabase.
+    let shopnestDB = null;
+
+    try {
+      if (
+        SUPABASE_URL.startsWith("https://") &&
+        !SUPABASE_URL.includes("YOUR_SUPABASE") &&
+        SUPABASE_PUBLISHABLE_KEY &&
+        !SUPABASE_PUBLISHABLE_KEY.includes("YOUR_SUPABASE")
+      ) {
+        shopnestDB = window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_PUBLISHABLE_KEY
+        );
+      }
+    } catch (error) {
+      console.error("Supabase setup error:", error);
+    }
+
+    function formatPrice(price) {
+      return Number(price || 0).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function getProductEmoji(name) {
+      const productName = String(name || "").toLowerCase();
+
+      if (productName.includes("earbud") || productName.includes("headphone")) {
+        return "🎧";
+      }
+      if (productName.includes("phone") || productName.includes("mobile")) {
+        return "📱";
+      }
+      if (productName.includes("laptop") || productName.includes("computer")) {
+        return "💻";
+      }
+      if (productName.includes("watch")) {
+        return "⌚";
+      }
+      if (productName.includes("shoe")) {
+        return "👟";
+      }
+      if (productName.includes("book")) {
+        return "📚";
+      }
+      if (productName.includes("bag")) {
+        return "🎒";
+      }
+      if (productName.includes("shirt") || productName.includes("clothing")) {
+        return "👕";
+      }
+
+      return "📦";
+    }
+
+    function renderProducts() {
+      const searchText = document
+        .getElementById("searchInput")
+        .value.trim()
+        .toLowerCase();
+
+      const filteredProducts = products.filter(product => {
+        const name = String(product.name || "").toLowerCase();
+        const description = String(product.description || "").toLowerCase();
+
+        return name.includes(searchText) || description.includes(searchText);
+      });
+
+      document.getElementById("productCount").textContent =
+        filteredProducts.length +
+        (filteredProducts.length === 1 ? " product" : " products");
+
+      if (filteredProducts.length === 0) {
+        productGrid.innerHTML = `
+          <div class="empty">
+            No products found. Try another search or add products to your database.
+          </div>
+        `;
+        return;
+      }
+
+      productGrid.innerHTML = filteredProducts.map(product => {
+        const inStock = Number(product.stock) > 0;
+
+        return `
+          <article class="product-card">
+            <div class="product-image">
+              ${getProductEmoji(product.name)}
+            </div>
+
+            <div class="product-info">
+              <h3>${escapeHTML(product.name)}</h3>
+
+              <p class="description">
+                ${escapeHTML(product.description || "Discover this product at ShopNest.")}
+              </p>
+
+              <p class="price">₹${formatPrice(product.price)}</p>
+
+              <p class="stock ${inStock ? "" : "out-of-stock"}">
+                ${inStock ? "In stock: " + Number(product.stock) : "Out of stock"}
+              </p>
+
+              <button
+                class="add-button"
+                ${inStock ? "" : "disabled"}
+                onclick="addToCart('${escapeJS(product.id)}')"
+              >
+                ${inStock ? "Add to Cart" : "Unavailable"}
+              </button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    function escapeJS(value) {
+      // Product IDs are placed inside a single-quoted JavaScript argument.
+      return String(value)
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "\\r");
+    }
+
+    async function loadProductsFromSupabase() {
+      if (!shopnestDB) {
+        statusMessage.textContent =
+          "Setup needed: add your Supabase project URL and publishable key in the code.";
+        productGrid.innerHTML = `
+          <div class="empty">
+            ShopNest is not connected yet. Follow Step 2 in the code to add your
+            Supabase project URL and publishable key, then refresh the page.
+          </div>
+        `;
+        return;
+      }
+
+      statusMessage.textContent = "Loading products from your database...";
+      productGrid.innerHTML = `
+        <div class="empty">Loading products from ShopNest...</div>
+      `;
+
+      try {
+        const { data, error } = await shopnestDB
+          .from("products")
+          .select("id, name, description, price, stock")
+          .order("name", { ascending: true });
+
+        if (error) {
+          throw error;
+        }
+
+        products = data || [];
+
+        statusMessage.textContent = products.length
+          ? "Products loaded successfully from Supabase."
+          : "Connected to Supabase, but no products were returned. Check your products table and access policies.";
+
+        renderProducts();
+      } catch (error) {
+        console.error("ShopNest product loading error:", error);
+
+        statusMessage.textContent =
+          "Could not load products. Check your Supabase table permissions.";
+
+        productGrid.innerHTML = `
+          <div class="empty">
+            We couldn't load products from the database.
+            Check the browser console and your Supabase products table permissions.
+            <br><br>
+            <button class="primary" onclick="loadProductsFromSupabase()">
+              Try Again
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    function addToCart(productId) {
+      const product = products.find(
+        item => String(item.id) === String(productId)
+      );
+
+      if (!product || Number(product.stock) <= 0) {
+        alert("This product is currently unavailable.");
+        return;
+      }
+
+      const cartItem = cart.find(
+        item => String(item.id) === String(productId)
+      );
+
+      const quantityInCart = cartItem ? cartItem.quantity : 0;
+
+      if (quantityInCart >= Number(product.stock)) {
+        alert("You have added all available stock of this product.");
+        return;
+      }
+
+      if (cartItem) {
+        cartItem.quantity += 1;
+      } else {
+        cart.push({
+          id: product.id,
+          name: product.name,
+          price: Number(product.price),
+          quantity: 1
+        });
+      }
+
+      renderCart();
+    }
+
+    function changeQuantity(productId, change) {
+      const cartItem = cart.find(
+        item => String(item.id) === String(productId)
+      );
+
+      const product = products.find(
+        item => String(item.id) === String(productId)
+      );
+
+      if (!cartItem || !product) return;
+
+      const nextQuantity = cartItem.quantity + change;
+
+      if (nextQuantity <= 0) {
+        cart = cart.filter(
+          item => String(item.id) !== String(productId)
+        );
+      } else if (nextQuantity <= Number(product.stock)) {
+        cartItem.quantity = nextQuantity;
+      } else {
+        alert("That quantity is not available in stock.");
+      }
+
+      renderCart();
+    }
+
+    function clearCart() {
+      cart = [];
+      renderCart();
+    }
+
+    function renderCart() {
+      const cartItems = document.getElementById("cartItems");
+      const cartCount = document.getElementById("cartCount");
+      const cartTotal = document.getElementById("cartTotal");
+
+      const totalQuantity = cart.reduce(
+        (sum, item) => sum + item.quantity, 0
+      );
+
+      const totalPrice = cart.reduce(
+        (sum, item) => sum + item.price * item.quantity, 0
+      );
+
+      cartCount.textContent = totalQuantity;
+      cartTotal.textContent = formatPrice(totalPrice);
+
+      if (cart.length === 0) {
+        cartItems.innerHTML =
+          "<p>Your cart is empty. Add a product to get started!</p>";
+        return;
+      }
+
+      cartItems.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <div>
+            <strong>${escapeHTML(item.name)}</strong>
+            <div>₹${formatPrice(item.price)} each</div>
+          </div>
+
+          <div>
+            <button
+              aria-label="Decrease quantity"
+              onclick="changeQuantity('${escapeJS(item.id)}', -1)"
+            >−</button>
+
+            <strong style="padding: 0 10px">${item.quantity}</strong>
+
+            <button
+              aria-label="Increase quantity"
+              onclick="changeQuantity('${escapeJS(item.id)}', 1)"
+            >+</button>
+          </div>
+
+          <strong>₹${formatPrice(item.price * item.quantity)}</strong>
+        </div>
+      `).join("");
+    }
+
+    function scrollToProducts() {
+      document.getElementById("productsSection").scrollIntoView({
+        behavior: "smooth"
+      });
+    }
+
+    function scrollToCart() {
+      document.getElementById("cartSection").scrollIntoView({
+        behavior: "smooth"
+      });
+    }
+
+    document.getElementById("searchInput").addEventListener(
+      "input",
+      renderProducts
+    );
+
+    // Start the website.
+    renderCart();
+    loadProductsFromSupabase();
+  </script>
+
+</body>
+</html>
